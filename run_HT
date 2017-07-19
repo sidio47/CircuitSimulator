@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+rm -f nohup.out
+export logfile=`date +"%Y-%m-%dT%H-%M-%S"`.HT.log
+python HT.py > ${logfile} 2>&1
+sed -i "s:^M:\n:g" ${logfile}
