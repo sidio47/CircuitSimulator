@@ -10,3 +10,5 @@ tests/exampleFunctionCalls/Shrink.txt
 */libcirc/stabilizer/*.pyc
 */libcirc/compile/*.pyc
 */libcirc/sample
+*.optrpt
+profiling/outputs

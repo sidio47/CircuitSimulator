@@ -12,11 +12,14 @@ import spawn_real_time_child as srtc
 # Globals
 
 n_list      = [1, 2, 4, 8, 16, 32, 64, 68]
+n_list      = [1, 2, 4]
 N_list      = [1, 2, 4]
 N_list      = [1]
 np_list     = [""]
-input_list  = ["HT10", "HT11", "HT12", "HT13", "HT14"]
+input_list  = ["HT10", "HT11", "HT12", "HT13", "HT14", "HT15", "HT16", "HT17"]
+input_list  = ["HT10", "HT11", "HT12"]
 queue_list  = ["normal"]
+binary_list = ["mpibackend", "mpibackend-opt"]
 prof_dict   = {"bare":"ibrun", \
                "remora":"remora ibrun", \
                 "vtune":"ibrun amplxe-cl -collect hpc-performance -result-dir="}
@@ -30,7 +33,7 @@ def read_template(filepath):
 
 #--------------------------------------------------------------------------------
 
-def fill_template(template, n, N, p, prof, prof_dict, np, input_file):
+def fill_template(template, n, N, p, prof, prof_dict, np, binary, input_file):
   name  = "n" + str(n) + "_N" + str(N) + "_prof" + str(prof).split(" ")[0] + "_input" + str(input_file)
   batch = template
   batch = batch.replace("<<<name>>>", str(name))
@@ -43,13 +46,14 @@ def fill_template(template, n, N, p, prof, prof_dict, np, input_file):
     batch = batch.replace("<<<prof>>>", str(prof_dict[prof])+"vtune_"+name)
   batch = batch.replace("<<<np>>>", str(np))
   batch = batch.replace("<<<input_file>>>", str(input_file))
+  batch = batch.replace("<<<binary>>>", str(binary))
 
   return name, batch
 
 #--------------------------------------------------------------------------------
 
-def submit_job(start_dir, template, n, N, p, prof, prof_dict, np, input_file):
-  name, batch = fill_template(template, n, N, p, prof, prof_dict, np, input_file)
+def submit_job(start_dir, template, n, N, p, prof, prof_dict, np, binary, input_file):
+  name, batch = fill_template(template, n, N, p, prof, prof_dict, np, binary, input_file)
   open("batch_" + name,"w").write(batch)
   cmd = "ssh login1 \"cd " + start_dir + "&& sbatch batch_{0} && cat batch_{0}\"".format(name)
   # Slurm batch submit
@@ -66,7 +70,8 @@ def run(template):
         for p in queue_list:
           for prof in prof_dict.keys() or []:
             for np in np_list or []:
-              submit_job(start_dir, template, n, N, p, prof, prof_dict, np, input_file)
+              for binary in binary_list:
+                submit_job(start_dir, template, n, N, p, prof, prof_dict, np, binary, input_file)
 
 
 #--------------------------------------------------------------------------------

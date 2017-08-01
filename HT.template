@@ -5,7 +5,7 @@
 #SBATCH -n <<<n>>>
 #SBATCH -N <<<N>>>
 #SBATCH -p <<<p>>>
-#SBATCH -t 00:30:00  
+#SBATCH -t 01:00:00  
 #SBATCH -A TG-PHY170005
 
 ml reset
@@ -21,7 +21,7 @@ export input_dir=${qc}/profiling/inputs/backend
 export output_dir=${qc}/profiling/outputs
 export prof="<<<prof>>>"
 
-time ${prof} <<<np>>> ${qc}/libcirc/mpibackend ${input_dir}/<<<input_file>>>
+time ${prof} <<<np>>> ${qc}/libcirc/<<<binary>>> ${input_dir}/<<<input_file>>>
 
 mkdir -p ${output_dir}/<<<name>>>.${SLURM_JOBID}
-mv -v batch_<<<name>>> HT.<<<name>>>.${SLURM_JOBID}.out remora_${SLURM_JOBID} vtune_<<<name>>> ${output_dir}/<<<name>>>.${SLURM_JOBID}
+mv -v batch_<<<name>>> HT.<<<name>>>.${SLURM_JOBID}.out remora_${SLURM_JOBID} vtune_<<<name>>>* ${output_dir}/<<<name>>>.${SLURM_JOBID}
