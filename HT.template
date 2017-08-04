@@ -5,7 +5,7 @@
 #SBATCH -n <<<n>>>
 #SBATCH -N <<<N>>>
 #SBATCH -p <<<p>>>
-#SBATCH -t 01:00:00  
+#SBATCH -t 02:00:00  
 #SBATCH -A TG-PHY170005
 
 ml reset

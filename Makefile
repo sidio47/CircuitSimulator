@@ -40,7 +40,7 @@ mpibackendblas:
 
 .PHONY: clean distclean
 clean:
-	rm -f *.o
+	rm -f *.o *.optrpt *.pyc
 
 distclean: clean
-	rm -rf libcirc/mpibackend* *.log
+	rm -rf libcirc/mpibackend* *.log *.out remora_* vtune_* batch_* impi_data.txt

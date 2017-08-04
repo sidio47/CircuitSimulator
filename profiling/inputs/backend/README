@@ -1,0 +1,8 @@
+2017-08-03
+
+
+Suffixes
+  .na - No Approximation;  example generation command: python main.py HT=10 --nosampling --exactstate file=HT10.na
+  .so - Sampling Only; command: python main.py HT=10 --forceSample samples=2000 --exactstate file=HT10.so
+  .ao - Approximation Only; command: python main.py HT=10 --nosampling --forceL fidbound=0.01 file=HT10.ao
+  .ba - Both Approximations; command: python main.py HT=10 --forceSample samples=2000 --forceL fidbound=0.01 file=HT10.ba

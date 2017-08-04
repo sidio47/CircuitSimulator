@@ -3,6 +3,9 @@
 #--------------------------------------------------------------------------------
 # System
 import os
+import subprocess as sp
+import sys
+import time
 
 #--------------------------------------------------------------------------------
 # Local
@@ -12,17 +15,15 @@ import spawn_real_time_child as srtc
 # Globals
 
 n_list      = [1, 2, 4, 8, 16, 32, 64, 68]
-n_list      = [1, 2, 4]
-N_list      = [1, 2, 4]
-N_list      = [1]
+N_list      = [1, 2, 4, 8, 16, 32]
 np_list     = [""]
-input_list  = ["HT10", "HT11", "HT12", "HT13", "HT14", "HT15", "HT16", "HT17"]
-input_list  = ["HT10", "HT11", "HT12"]
+input_list  = ["HT10", "HT11", "HT12", "HT13", "HT14", "HT15", "HT16", "HT17", "HT18", "HT19", "HT20"]
 queue_list  = ["normal"]
 binary_list = ["mpibackend", "mpibackend-opt"]
 prof_dict   = {"bare":"ibrun", \
                "remora":"remora ibrun", \
                 "vtune":"ibrun amplxe-cl -collect hpc-performance -result-dir="}
+prof_dict   = {"bare":"ibrun"}
                    
 #--------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------
@@ -64,14 +65,52 @@ def submit_job(start_dir, template, n, N, p, prof, prof_dict, np, binary, input_
 
 def run(template):
   start_dir = os.getcwd()
+  count = 0
+  tc = 0
+  dt = 2
+  invalid_job_count = 0
   for n in n_list:
     for N in N_list:
       for input_file in input_list:
         for p in queue_list:
           for prof in prof_dict.keys() or []:
-            for np in np_list or []:
+            for np in np_list:
               for binary in binary_list:
+ 
+                if n < N:
+                  invalid_job_count += 1
+                  continue
+
+                tot = len(n_list) * len(N_list) * len(input_list) * len(queue_list) * len(prof_dict.keys()) * len(np_list) * len(binary_list) - invalid_job_count
+                
+                count += 1
+                print("="*80)
+                print("JOB: {0}".format(count))
+                print("="*80)
+
                 submit_job(start_dir, template, n, N, p, prof, prof_dict, np, binary, input_file)
+
+                time.sleep(dt)
+                while True:
+                  p1 = sp.Popen(["squeue", "-l","-u",os.environ["USER"]], stdout=sp.PIPE)
+                  p2 = sp.Popen(["grep","RUNNING"], stdin=p1.stdout, stdout=sp.PIPE)
+                  p3 = sp.Popen(["wc","-l"], stdin=p2.stdout, stdout=sp.PIPE)
+                  running_jobs = int(p3.communicate()[0])
+                  p1 = sp.Popen(["squeue", "-l","-u",os.environ["USER"]], stdout=sp.PIPE)
+                  p2 = sp.Popen(["grep","PENDING"], stdin=p1.stdout, stdout=sp.PIPE)
+                  p3 = sp.Popen(["wc","-l"], stdin=p2.stdout, stdout=sp.PIPE)
+                  pending_jobs = int(p3.communicate()[0])
+                  if running_jobs + pending_jobs < 45:
+                    sys.stdout.write("\rTICK: {0}; COUNT: {1}/{2}; {3}/{4} jobs currently running/pending...".format(tc,count,tot,running_jobs,pending_jobs))
+                    sys.stdout.flush()
+                    time.sleep(dt)
+                    break
+                  else:
+                    tc += dt
+                    sys.stdout.write("\rTICK: {0}; COUNT: {1}/{2}; {3}/{4} jobs currently running/pending...".format(tc,count,tot,running_jobs,pending_jobs))
+                    sys.stdout.flush()
+                    time.sleep(dt)
+
 
 
 #--------------------------------------------------------------------------------
